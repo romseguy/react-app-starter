@@ -1,3 +1,11 @@
+# Demo
+
+https://react-app-starter.vercel.app/
+
+login: admin
+
+password: admin
+
 # Setting up the project
 
 [next-auth-example README.md](https://github.com/nextauthjs/next-auth-example/README.md)
