@@ -20,11 +20,18 @@ import {
 } from "@chakra-ui/core";
 import { Link } from "./link";
 
-const MenuItems = ({ children }) => (
-  <Text mt={{ base: 4, md: 0 }} mr={6} display="block">
-    {children}
-  </Text>
-);
+const MenuItems = ({ children }) => {
+  const W = styled(Text)`
+    a {
+      ${tw`mr-4`}
+    }
+  `;
+  return (
+    <W mt={{ base: 4, md: 0 }} mr={6} display="block">
+      {children}
+    </W>
+  );
+};
 
 const LoginButton = (props) => {
   return (

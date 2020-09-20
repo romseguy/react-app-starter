@@ -29,23 +29,26 @@ const ProfileStore = t
     },
   }))
   .actions((store) => ({
+    setProfiles(data) {
+      const profiles = {};
+      data.forEach(({ _id, firstname, lastname, birthdate, ...attrs }) => {
+        profiles[_id] = ProfileModel.create({
+          _id,
+          slug: `${firstname}-${lastname}`,
+          firstname,
+          lastname,
+          birthdate: new Date(birthdate),
+          ...attrs,
+        });
+      });
+      store.profiles = profiles;
+    },
     fetch: flow(function* fetchList() {
       store.state = "pending";
       try {
         const { data } = yield api.get("profiles");
-        const profiles = {};
-        data.forEach(({ _id, firstname, lastname, birthdate }) => {
-          profiles[_id] = ProfileModel.create({
-            _id,
-            slug: `${firstname}-${lastname}`,
-            firstname,
-            lastname,
-            birthdate: new Date(birthdate),
-          });
-        });
-        store.profiles = profiles;
+        store.setProfiles(data);
         store.state = "done";
-        return profiles;
       } catch (error) {
         store.state = "error";
         console.error(error);
@@ -73,6 +76,18 @@ const ProfileStore = t
     }),
   }));
 
-export const ProfileType = t.model("ProfileType", {
-  store: t.optional(ProfileStore, {}),
-});
+export const ProfileType = t
+  .model("ProfileType", {
+    store: t.optional(ProfileStore, {}),
+    selectedProfile: t.maybeNull(t.reference(ProfileModel)),
+  })
+  .actions((self) => ({
+    selectProfile: flow(function* selectProfile(slug) {
+      yield self.store.fetch();
+      self.store.profiles.forEach((profile) => {
+        if (slug === profile.slug) {
+          self.selectedProfile = profile;
+        }
+      });
+    }),
+  }));

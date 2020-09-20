@@ -23,7 +23,9 @@ handler.get(async (req, res) => {
       if (profile) {
         res.json({ data: profile });
       } else {
-        res.status(400).json(createServerError(new Error("Profile not found")));
+        res
+          .status(400)
+          .json(createServerError(new Error("Document not found")));
       }
     } catch (error) {
       createServerError(error);
@@ -52,7 +54,7 @@ handler.put(async (req, res) => {
       } else {
         res
           .status(400)
-          .json(createServerError(new Error("Profile could not be modified")));
+          .json(createServerError(new Error("Document could not be modified")));
       }
     } catch (error) {
       res.status(400).json(createServerError(error));
@@ -78,7 +80,7 @@ handler.delete(async (req, res) => {
       } else {
         res
           .status(400)
-          .json(createServerError(new Error("Profile could not be deleted")));
+          .json(createServerError(new Error("Document could not be deleted")));
       }
     } catch (error) {
       res.status(400).json(createServerError(error));

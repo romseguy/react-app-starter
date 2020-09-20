@@ -29,12 +29,7 @@ handler.post(async (req, res) => {
     res.send({ error: "You must be signed in" });
   } else {
     try {
-      const { firstname, lastname, birthdate } = req.body;
-      const profile = await req.models.Profile.create({
-        firstname,
-        lastname,
-        birthdate,
-      });
+      const profile = await req.models.Profile.create(req.body);
       res.status(200).json(profile);
     } catch (error) {
       res.status(400).json(createServerError(error));

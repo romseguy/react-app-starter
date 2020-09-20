@@ -31,39 +31,23 @@ export default function Page(props) {
     return null;
   }
 
-  const {
-    profile: {
-      store: { fetch, isLoading, isEmpty },
-    },
-  } = useStore();
-  const [profile, setProfile] = useState();
+  const { profileType } = useStore();
+  const profile = profileType.selectedProfile;
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      const profiles = await fetch();
-
-      if (!profiles) router.push("/profiles");
-      else {
-        let found = false;
-        Object.keys(profiles).forEach((_id) => {
-          if (profiles[_id].slug === profileSlug) {
-            found = true;
-            setProfile(profiles[_id]);
-          }
-        });
-        if (!found) setProfile(null);
-      }
+    const selectProfile = async () => {
+      await profileType.selectProfile(profileSlug);
     };
-    fetchProfiles();
+    selectProfile();
   }, [action]);
 
-  if (isLoading || profile === undefined)
+  if (profileType.store.isLoading)
     return (
       <Layout>
         <Spinner />
       </Layout>
     );
-  if (isEmpty) return <Layout>No profiles</Layout>;
+  if (profileType.store.isEmpty) return <Layout>No profiles</Layout>;
   if (profile === null) return <Layout>Profile not found</Layout>;
 
   if (action === "edit") {

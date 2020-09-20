@@ -62,7 +62,7 @@ export const ProfileForm = ({ profile }) => {
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl isRequired p={5}>
+      <FormControl isRequired m={5}>
         <FormLabel htmlFor="firstname">First name</FormLabel>
         <Input
           name="firstname"
@@ -77,7 +77,7 @@ export const ProfileForm = ({ profile }) => {
         />
       </FormControl>
 
-      <FormControl isRequired p={5} pt={0}>
+      <FormControl isRequired m={5} mt={0}>
         <FormLabel htmlFor="lastname">Last name</FormLabel>
         <Input
           name="lastname"
@@ -92,7 +92,7 @@ export const ProfileForm = ({ profile }) => {
         />
       </FormControl>
 
-      <FormControl isRequired p={5} pt={0}>
+      <FormControl isRequired m={5} mt={0}>
         <FormLabel htmlFor="birthdate">Birth date</FormLabel>
         <Controller
           name="birthdate"

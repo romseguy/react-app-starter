@@ -10,7 +10,7 @@ const databaseErrorCodes = {
 export const createDatabaseError = (error) => {
   if (error.code && error.message) {
     if (error.code === databaseErrorCodes.DUPLICATE_KEY) {
-      return { message: "Une fiche existe déjà pour cet élève" };
+      return { message: "An entry already exists for these parameters" };
     }
   }
 };

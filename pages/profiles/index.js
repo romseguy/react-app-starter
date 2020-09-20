@@ -10,8 +10,10 @@ import { useEffect, useState } from "react";
 import { useStore } from "tree";
 import { StyledTable as Table } from "components/table";
 import { format } from "date-fns";
+import { observer } from "mobx-react-lite";
+import { values } from "mobx";
 
-export default function Page(props) {
+const Page = (props) => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const [session = props.session, loading] = useSession();
@@ -27,14 +29,13 @@ export default function Page(props) {
   const router = useRouter();
   const {
     profile: {
-      store: { fetch, isLoading, isEmpty },
+      store: { profiles, fetch, isLoading, isEmpty },
     },
   } = useStore();
-  const [profiles = {}, setProfiles] = useState();
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      setProfiles(await fetch());
+      await fetch();
     };
     fetchProfiles();
   }, []);
@@ -66,11 +67,10 @@ export default function Page(props) {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(profiles).map((_id) => {
-              const profile = profiles[_id];
+            {values(profiles).map((profile) => {
               return (
                 <tr
-                  key={_id}
+                  key={profile._id}
                   tabIndex={0}
                   title={`Click to open the profile for ${profile.firstname} ${profile.lastname}`}
                   onClick={() =>
@@ -91,7 +91,7 @@ export default function Page(props) {
       )}
     </Layout>
   );
-}
+};
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
@@ -102,3 +102,5 @@ export async function getServerSideProps(context) {
     },
   };
 }
+
+export default observer(Page);
