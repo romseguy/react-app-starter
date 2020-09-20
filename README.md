@@ -2,35 +2,26 @@
 
 [next-auth-example README.md](https://github.com/nextauthjs/next-auth-example/README.md)
 
-# Adding new entity types
+# Adding entity types
 
-## Server-side
+```
+# server-side
+cp -R pages/api/profiles pages/api/todos # api route
 
-### API route
+# client-side
+cp -R pages/profiles pages/todos # client route
+cp -R tree/profile tree/todo # entity type
+cp components/profile-form components/todo-form # form
+```
 
-Copy `pages/api/profiles` into `pages/api/todos`
+- Search for `profile` project-wide and replace (preserving case) with `todo`
+- `tree/tree.js:` Import and add `TodoType` to `Tree`
+- `utils/mongoose/schemas.js:` Add `TodoSchema`
+- `middlewares/database.js:` Import and add `TodoSchema` to `req.models`
 
-### Schema
+Optionally:
 
-Add `TodoSchema` to `utils/mongoose/schemas.js`
-
-## Client-side
-
-### Entity type
-
-Copy `tree/profile` into `tree/todo`
-
-### Page
-
-Copy `pages/profiles` into `pages/todos`
-
-### Form
-
-Copy `components/profile-form` into `components/todo-form`
-
-## Both
-
-Search/replace preserving case `profile` into `todo`
+- `components/nav.js:` Add `<Link href="/todos">Todos</Link>` to `<MenuItems>`
 
 # Credits
 
