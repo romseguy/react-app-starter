@@ -6,6 +6,9 @@ import { isServer } from "utils/isServer";
 import { PageTitle } from "components/page-title";
 import { ProfileForm } from "components/profile-form";
 
+// registerLocale("fr", fr);
+// setDefaultLocale("fr");
+
 export default function Page(props) {
   const [session = props.session, loading] = useSession();
 
@@ -22,7 +25,7 @@ export default function Page(props) {
   return (
     <>
       <Layout>
-        <PageTitle>Add a new profile</PageTitle>
+        <PageTitle>Ajouter une nouvelle fiche profile</PageTitle>
         <ProfileForm />
       </Layout>
       {/* <DevTool control={control} /> */}

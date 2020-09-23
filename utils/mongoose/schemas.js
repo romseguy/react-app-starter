@@ -10,7 +10,7 @@ export const ProfileSchema = new mongoose.Schema({
     required: true,
   },
   birthdate: {
-    type: String,
+    type: Date,
   },
 });
 

@@ -1,3 +1,5 @@
+import { values } from "mobx";
+import { observer } from "mobx-react-lite";
 import { getSession, useSession } from "next-auth/client";
 import { isServer } from "utils/isServer";
 import Layout from "components/layout";
@@ -6,10 +8,10 @@ import { useRouter } from "next/router";
 import { ProfileForm } from "components/profile-form";
 import { useEffect, useState } from "react";
 import { useStore } from "tree";
-import { Button, Spinner, useColorMode, useTheme } from "@chakra-ui/core";
+import { Button, Icon, Spinner, useColorMode, useTheme } from "@chakra-ui/core";
 import { PageSubTitle, PageTitle } from "components/page-title";
 
-export default function Page(props) {
+export default observer((props) => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const [session = props.session, loading] = useSession();
@@ -32,54 +34,69 @@ export default function Page(props) {
   }
 
   const { profileType } = useStore();
-  const profile = profileType.selectedProfile;
 
   useEffect(() => {
     const selectProfile = async () => {
       await profileType.selectProfile(profileSlug);
     };
+
     selectProfile();
   }, [action]);
 
-  if (profileType.store.isLoading)
-    return (
-      <Layout>
-        <Spinner />
-      </Layout>
-    );
-  if (profileType.store.isEmpty) return <Layout>No profiles</Layout>;
-  if (profile === null) return <Layout>Profile not found</Layout>;
+  const selectedProfile = profileType.selectedProfile;
+
+  if (!profileType.store.isLoading && profileType.store.isEmpty)
+    return <Layout>The application doesn't have any profile</Layout>;
+  if (selectedProfile === null) return <Layout>Profile not found</Layout>;
 
   if (action === "edit") {
     return (
       <Layout>
-        <ProfileForm profile={profile} />
+        {!!selectedProfile ? (
+          <>
+            <PageTitle>
+              {`Modification de la fiche de ${selectedProfile.firstname} ${selectedProfile.lastname}`}
+            </PageTitle>
+            <ProfileForm profile={selectedProfile} />
+          </>
+        ) : (
+          <Spinner />
+        )}
+      </Layout>
+    );
+  } else {
+    const editAction = () => {
+      router.push(
+        "/profiles/[...slug]",
+        `/profiles/${selectedProfile.slug}/edit`
+      );
+    };
+    const removeAction = async () => {
+      const removedProfile = await selectedProfile.remove();
+      router.push("/profiles");
+    };
+
+    return (
+      <Layout>
+        {!!selectedProfile ? (
+          <>
+            <PageTitle>
+              {`Fiche de ${selectedProfile.firstname} ${selectedProfile.lastname}`}
+              <Button mx={5} border="1px" onClick={editAction}>
+                Modifier
+              </Button>
+              <Button border="1px" onClick={removeAction}>
+                Supprimer
+              </Button>
+            </PageTitle>
+          </>
+        ) : (
+          <Spinner />
+        )}
       </Layout>
     );
   }
-
-  const editAction = () => {
-    router.push("/profiles/[...slug]", `/profiles/${profile.slug}/edit`);
-  };
-  const removeAction = async () => {
-    const removedProfile = await profile.remove();
-    router.push("/profiles");
-  };
-
-  return (
-    <Layout>
-      <PageTitle>
-        {`Profile of ${profile.firstname} ${profile.lastname}`}
-        <Button mx={5} border="1px" onClick={editAction}>
-          Edit
-        </Button>
-        <Button border="1px" onClick={removeAction}>
-          Remove
-        </Button>
-      </PageTitle>
-    </Layout>
-  );
-}
+});
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);

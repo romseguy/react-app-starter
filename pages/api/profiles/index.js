@@ -7,11 +7,11 @@ const handler = nextConnect();
 
 handler.use(middleware);
 
-handler.get(async (req, res) => {
+handler.get(async function getProfiles(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
-    res.send({ error: "You must be signed in" });
+    res.send({ error: "Vous devez être identifié pour accéder à ce contenu." });
   } else {
     try {
       const profiles = await req.models.Profile.find({});
@@ -22,14 +22,19 @@ handler.get(async (req, res) => {
   }
 });
 
-handler.post(async (req, res) => {
+handler.post(async function postProfile(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
-    res.send({ error: "You must be signed in" });
+    res.send({ error: "Vous devez être identifié pour accéder à ce contenu." });
   } else {
     try {
-      const profile = await req.models.Profile.create(req.body);
+      const { firstname, lastname, birthdate } = req.body;
+      const profile = await req.models.Profile.create({
+        firstname,
+        lastname,
+        birthdate,
+      });
       res.status(200).json(profile);
     } catch (error) {
       res.status(400).json(createServerError(error));

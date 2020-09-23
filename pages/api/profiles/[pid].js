@@ -7,11 +7,11 @@ const handler = nextConnect();
 
 handler.use(middleware);
 
-handler.get(async (req, res) => {
+handler.get(async function getProfile(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
-    res.send({ error: "You must be signed in" });
+    res.send({ error: "Vous devez être identifié pour accéder à ce contenu." });
   } else {
     const {
       query: { pid },
@@ -25,7 +25,9 @@ handler.get(async (req, res) => {
       } else {
         res
           .status(400)
-          .json(createServerError(new Error("Document not found")));
+          .json(
+            createServerError(new Error("Le document n'a pas pu être trouvé"))
+          );
       }
     } catch (error) {
       createServerError(error);
@@ -33,11 +35,11 @@ handler.get(async (req, res) => {
   }
 });
 
-handler.put(async (req, res) => {
+handler.put(async function editProfile(req, res) {
   const session = await getSession({ req });
 
   if (!session) {
-    res.send({ error: "You must be signed in" });
+    res.send({ error: "Vous devez être identifié pour accéder à ce contenu." });
   } else {
     const {
       query: { pid },
@@ -54,7 +56,9 @@ handler.put(async (req, res) => {
       } else {
         res
           .status(400)
-          .json(createServerError(new Error("Document could not be modified")));
+          .json(
+            createServerError(new Error("Le document n'a pas pu être modifié"))
+          );
       }
     } catch (error) {
       res.status(400).json(createServerError(error));
@@ -66,7 +70,7 @@ handler.delete(async (req, res) => {
   const session = await getSession({ req });
 
   if (!session) {
-    res.send({ error: "You must be signed in" });
+    res.send({ error: "Vous devez être identifié pour accéder à ce contenu." });
   } else {
     const {
       query: { pid },
@@ -80,7 +84,9 @@ handler.delete(async (req, res) => {
       } else {
         res
           .status(400)
-          .json(createServerError(new Error("Document could not be deleted")));
+          .json(
+            createServerError(new Error("Le document n'a pas pu être supprimé"))
+          );
       }
     } catch (error) {
       res.status(400).json(createServerError(error));

@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { isStateTreeNode } from "mobx-state-tree";
 import { Controller, useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { useRouter } from "next/router";
 // import { DevTool } from "@hookform/devtools";
 import {
   Input,
@@ -11,20 +15,18 @@ import {
   Stack,
 } from "@chakra-ui/core";
 import { DatePicker } from "components/datepicker";
-import { useRouter } from "next/router";
 import { subYears } from "date-fns";
-import { ErrorMessage } from "@hookform/error-message";
-import { useState } from "react";
 import { useStore } from "tree";
 
-export const ProfileForm = ({ profile }) => {
+export const ProfileForm = (props) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState();
-  const {
-    profile: {
-      store: { addProfile, setProfile },
-    },
-  } = useStore();
+  const { profileType } = useStore();
+
+  if (props.profile && !isStateTreeNode(props.profile)) {
+    console.error("props.profile must be a model instance");
+    return null;
+  }
 
   const {
     control,
@@ -43,61 +45,65 @@ export const ProfileForm = ({ profile }) => {
   };
 
   const onSubmit = async (formData) => {
+    const handleError = () => {
+      setIsLoading(false);
+      setError("apiErrorMessage", { type: "manual", message: res.message });
+    };
+
     setIsLoading(true);
     let res;
 
-    if (profile) {
-      res = await setProfile({ ...formData, _id: profile._id });
+    if (props.profile) {
+      props.profile.merge(formData);
+      res = await props.profile.update();
+      if (res.status === "error") handleError();
+      else
+        router.push("/profiles/[...slug]", `/profiles/${props.profile.slug}`);
     } else {
-      res = await addProfile(formData);
-    }
-
-    if (res.status === "error") {
-      setIsLoading(false);
-      setError("apiErrorMessage", { type: "manual", message: res.message });
-    } else {
-      router.push("/profiles");
+      res = await profileType.store.postProfile(formData);
+      if (res.status === "error") handleError();
+      else router.push("/profiles");
     }
   };
 
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-      <FormControl isRequired m={5}>
-        <FormLabel htmlFor="firstname">First name</FormLabel>
+      <FormControl isRequired m={5} mt={0}>
+        <FormLabel htmlFor="firstname">Prénom</FormLabel>
         <Input
           name="firstname"
-          placeholder="First name"
+          placeholder="Prénom"
           ref={register({ required: true })}
-          defaultValue={(profile && profile.firstname) || ""}
+          defaultValue={(props.profile && props.profile.firstname) || ""}
         />
         <ErrorMessage
           errors={errors}
           name="firstname"
-          message="This field is required"
+          message="Veuillez saisir un prénom"
         />
       </FormControl>
 
       <FormControl isRequired m={5} mt={0}>
-        <FormLabel htmlFor="lastname">Last name</FormLabel>
+        <FormLabel htmlFor="lastname">Nom</FormLabel>
         <Input
           name="lastname"
-          placeholder="Last name"
+          placeholder="Nom"
           ref={register({ required: true })}
-          defaultValue={(profile && profile.lastname) || ""}
+          defaultValue={(props.profile && props.profile.lastname) || ""}
         />
         <ErrorMessage
           errors={errors}
           name="lastname"
-          message="This field is required"
+          message="Veuillez saisir un nom de famille"
         />
       </FormControl>
 
       <FormControl isRequired m={5} mt={0}>
-        <FormLabel htmlFor="birthdate">Birth date</FormLabel>
+        <FormLabel htmlFor="birthdate">Date de naissance</FormLabel>
         <Controller
           name="birthdate"
           control={control}
-          defaultValue={(profile && profile.birthdate) || ""}
+          defaultValue={(props.profile && props.profile.birthdate) || ""}
           rules={{ required: true }}
           render={(props) => (
             <DatePicker
@@ -110,7 +116,7 @@ export const ProfileForm = ({ profile }) => {
         <ErrorMessage
           errors={errors}
           name="birthdate"
-          message="This field is required"
+          message="Veuillez saisir une date de naissance"
         />
       </FormControl>
 
@@ -132,7 +138,7 @@ export const ProfileForm = ({ profile }) => {
         isLoading={isLoading}
         isDisabled={Object.keys(errors).length > 0}
       >
-        {profile ? "Edit" : "Add"}
+        {props.profile ? "Modifier" : "Ajouter"}
       </Button>
     </form>
   );
